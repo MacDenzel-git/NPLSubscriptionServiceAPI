@@ -8,6 +8,7 @@ namespace NPLDataAccessLayer.Models
         public long SubscriptionId { get; set; }
         public int ClientId { get; set; }
         public int SubscriptionTypeId { get; set; }
+        public int SubscriptionStatusId { get; set; }
         public decimal ChargeInMwk { get; set; }
         public int PromotionId { get; set; }
         public DateTime DateOfSubscription { get; set; }
@@ -17,9 +18,15 @@ namespace NPLDataAccessLayer.Models
         public DateTime CreatedDate { get; set; }
         public string? ModifiedBy { get; set; }
         public DateTime? ModifiedDate { get; set; }
+        public int? NumberOfCopies { get; set; }
+        public int PublicationId { get; set; }
+        public int TypeOfDeliveryId { get; set; }
 
-        public virtual Client Client { get; set; } = null!;
         public virtual Payment Payment { get; set; } = null!;
         public virtual Promotion Promotion { get; set; } = null!;
+        public virtual Publication Publication { get; set; } = null!;
+        public virtual SubscriptionStatus SubscriptionStatus { get; set; } = null!;
+        public virtual SubscriptionType SubscriptionType { get; set; } = null!;
+        public virtual TypeOfDelivery TypeOfDelivery { get; set; } = null!;
     }
 }

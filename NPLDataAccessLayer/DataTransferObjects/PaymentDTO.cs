@@ -9,9 +9,16 @@ namespace NPLDataAccessLayer.DataTransferObjects
     public class PaymentDTO
     {
         public long PaymentId { get; set; }
-        public string PaymentType { get; set; } = null!;
-        public string TransactionId { get; set; } = null!;
+        public int PaymentTypeId { get; set; } 
+        public string? PaymentTypeDescription { get; set; }
+        public string? TransactionId { get; set; } 
         public int ClientId { get; set; }
+        public string? ClientName { get; set; }
         public bool IsUsed { get; set; }
+        public string? CreatedBy { get; set; }
+        public DateTime CreatedDate { get; set; }
+        public string? ModifiedBy { get; set; }
+        public DateTime? ModifiedDate { get; set; }
+        public int AccountNumber { get; set; }
     }
 }

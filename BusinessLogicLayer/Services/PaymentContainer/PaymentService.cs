@@ -1,4 +1,5 @@
-﻿using NPLDataAccessLayer.DataTransferObjects;
+﻿using Microsoft.EntityFrameworkCore;
+using NPLDataAccessLayer.DataTransferObjects;
 using NPLDataAccessLayer.GenericRepositoryContainer;
 using NPLDataAccessLayer.Models;
 using NPLReusableResourcesPackage.AutoMapperContainer;
@@ -16,8 +17,10 @@ namespace BusinessLogicLayer.Services.PaymentServiceContainer
     {
 
         private readonly GenericRepository<Payment> _service;
-        public PaymentService(GenericRepository<Payment> service)
+        private readonly NPLSubsctiptionServiceDBContext _context;
+        public PaymentService(GenericRepository<Payment> service, NPLSubsctiptionServiceDBContext  context)
         {
+            _context = context;
             _service = service;
         }
         public async Task<OutputHandler> Create(PaymentDTO payment)
@@ -74,8 +77,20 @@ namespace BusinessLogicLayer.Services.PaymentServiceContainer
 
         public async Task<IEnumerable<PaymentDTO>> GetAllPayments()
         {
-            var output = await _service.GetAll();
-            return new AutoMapper<Payment, PaymentDTO>().MapToList(output);
+            IEnumerable<PaymentDTO> output = await (from payments in _context.Payments
+                         join c in _context.Clients on payments.ClientId equals c.ClientId 
+                         join pt in _context.PaymentTypes on payments.PaymentTypeId equals pt.PaymentTypeId 
+                         select new PaymentDTO
+                         {
+                             ClientId = c.ClientId,
+                             ClientName = c.ClientName,
+                             PaymentTypeDescription = pt.Description,
+                             AccountNumber = pt.AccountNumber,
+                             TransactionId = payments.TransactionId,
+                             PaymentId = payments.PaymentId
+                         }).ToListAsync();
+
+            return output;
         }
 
         #region Commented update Code in case it's needed

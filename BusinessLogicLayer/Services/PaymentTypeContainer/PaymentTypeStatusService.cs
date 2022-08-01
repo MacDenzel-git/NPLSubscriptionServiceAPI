@@ -83,13 +83,13 @@ namespace BusinessLogicLayer.Services.SubscriptionServiceContainer
             try
             {
                 //check if record with same name already exist to avoid duplicates
-                bool isExist = await _service.AnyAsync(x => x.Description == paymentType.Description);
+                bool isExist = await _service.AnyAsync(x => x.AccountNumber == paymentType.AccountNumber && x.Description == paymentType.Description);
                 if (isExist)
                 {
                     return new OutputHandler
                     {
                         IsErrorOccured = true,
-                        Message = StandardMessages.GetDuplicateMessage(paymentType.Description)
+                        Message = $"An Account with these details already exist > Bank:{paymentType.AccountNumber} Number:{paymentType.AccountNumber}"
 
                     };
                 }

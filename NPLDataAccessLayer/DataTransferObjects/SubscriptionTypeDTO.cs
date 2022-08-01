@@ -10,10 +10,10 @@ namespace NPLDataAccessLayer.DataTransferObjects
     {
         public int SubscriptionTypeId { get; set; }
         public bool IsCalculationTypeMonths { get; set; }
-        public string SubscriptionName { get; set; } = null!;
+        public string SubscriptionName { get; set; }
         public decimal SubscriptionFee { get; set; }
         public int Duration { get; set; }
-        public string CreatedBy { get; set; } = null!;
+        public string CreatedBy { get; set; } 
         public DateTime CreatedDate { get; set; }
         public string? ModifiedBy { get; set; }
         public DateTime? ModifiedDate { get; set; }

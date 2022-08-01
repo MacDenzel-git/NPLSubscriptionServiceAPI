@@ -6,14 +6,14 @@ using System.Threading.Tasks;
 
 namespace NPLDataAccessLayer.DataTransferObjects
 {
-    public class PaymentTypeDTO
+    public class TypeOfDeliveryDTO
     {
-        public int PaymentTypeId { get; set; }
-        public string Description { get; set; } 
-        public int AccountNumber { get; set; }
+        public int TypeOfDeliveryId { get; set; }
+        public string TypeOfDeliveryDescription { get; set; }
         public string CreatedBy { get; set; }
         public DateTime CreatedDate { get; set; }
+        public DateTime? DateModified { get; set; }
         public string? ModifiedBy { get; set; }
-        public DateTime? ModifiedDate { get; set; }
+        public bool IsActive { get; set; }
     }
 }

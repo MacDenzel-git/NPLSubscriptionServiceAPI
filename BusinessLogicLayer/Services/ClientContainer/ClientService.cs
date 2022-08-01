@@ -81,17 +81,23 @@ namespace BusinessLogicLayer.Services.ClientServiceContainer
         {
             try
             {
-                //names can be the same but emails can only be assigned to one client
-                bool isExist = await _service.AnyAsync(x => x.Email == client.Email);
-                if (isExist)
+                if (!client.OldEmail.Equals(client.Email))//this means email was was updated because the email doesn't match with old email
                 {
-                    return new OutputHandler
+                    //check new email if it's already registered
+                    //names can be the duplicated but emails can only be assigned to one client
+                    bool isExist = await _service.AnyAsync(x => x.Email == client.Email);
+                    if (isExist)
                     {
-                        IsErrorOccured = true,
-                        Message = StandardMessages.GetDuplicateMessage(client.Email)
+                        return new OutputHandler
+                        {
+                            IsErrorOccured = true,
+                            Message = StandardMessages.GetDuplicateMessage(client.Email)
 
-                    };
+                        };
+                    }
                 }
+
+
                 var mapped = new AutoMapper<ClientDTO, Client>().MapToObject(client);
                 var result = await _service.Update(mapped);
                 return result;

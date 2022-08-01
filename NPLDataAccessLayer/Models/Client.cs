@@ -5,17 +5,12 @@ namespace NPLDataAccessLayer.Models
 {
     public partial class Client
     {
-        public Client()
-        {
-            Subscriptions = new HashSet<Subscription>();
-        }
-
         public int ClientId { get; set; }
         public int ClientTypeId { get; set; }
-        public string Location { get; set; } = null!;
+        public string? Location { get; set; }
         public string ClientName { get; set; } = null!;
-        public string PhoneNumber { get; set; } = null!;
-        public string Email { get; set; } 
+        public string Email { get; set; } = null!;
+        public string? PhoneNumber { get; set; }
         public int RegionId { get; set; }
         public long DistrictId { get; set; }
         public string CreatedBy { get; set; } = null!;
@@ -26,6 +21,5 @@ namespace NPLDataAccessLayer.Models
         public virtual ClientType ClientType { get; set; } = null!;
         public virtual District District { get; set; } = null!;
         public virtual Region Region { get; set; } = null!;
-        public virtual ICollection<Subscription> Subscriptions { get; set; }
     }
 }

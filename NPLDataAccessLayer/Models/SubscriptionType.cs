@@ -5,6 +5,11 @@ namespace NPLDataAccessLayer.Models
 {
     public partial class SubscriptionType
     {
+        public SubscriptionType()
+        {
+            Subscriptions = new HashSet<Subscription>();
+        }
+
         public int SubscriptionTypeId { get; set; }
         public bool IsCalculationTypeMonths { get; set; }
         public string SubscriptionName { get; set; } = null!;
@@ -14,5 +19,7 @@ namespace NPLDataAccessLayer.Models
         public DateTime CreatedDate { get; set; }
         public string? ModifiedBy { get; set; }
         public DateTime? ModifiedDate { get; set; }
+
+        public virtual ICollection<Subscription> Subscriptions { get; set; }
     }
 }

@@ -6,14 +6,15 @@ using System.Threading.Tasks;
 
 namespace NPLDataAccessLayer.DataTransferObjects
 {
-    public class PromotionDTO
+    public class PublicationDTO
     {
-        public int PromotionId { get; set; }
-        public string? PromotionCode { get; set; }
-        public int? DiscountPercentage { get; set; }
-        public string CreatedBy { get; set; } = null!;
+        public int PublicationId { get; set; }
+        public string PublicationTitle { get; set; } 
+        public bool IsActive { get; set; }
+        public string CreatedBy { get; set; } 
         public DateTime CreatedDate { get; set; }
-        public string? ModifiedBy { get; set; }
+        public string? ModifiedBy { get; set; } 
         public DateTime? ModifiedDate { get; set; }
+
     }
 }

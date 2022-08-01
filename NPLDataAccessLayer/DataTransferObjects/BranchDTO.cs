@@ -9,8 +9,9 @@ namespace NPLDataAccessLayer.DataTransferObjects
     public class BranchDTO
     {
         public int BranchId { get; set; }
-        public string BranchName { get; set; } = null!;
+        public string BranchName { get; set; } 
         public int CountryId { get; set; }
+        public string CountryName { get; set; }
         public DateTime? DateCreated { get; set; }
         public string? CreatedBy { get; set; }
         public DateTime? ModifiedDate { get; set; }

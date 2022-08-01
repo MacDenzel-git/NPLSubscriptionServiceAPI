@@ -24,10 +24,12 @@ namespace NPLDataAccessLayer.Models
         public virtual DbSet<Payment> Payments { get; set; } = null!;
         public virtual DbSet<PaymentType> PaymentTypes { get; set; } = null!;
         public virtual DbSet<Promotion> Promotions { get; set; } = null!;
+        public virtual DbSet<Publication> Publications { get; set; } = null!;
         public virtual DbSet<Region> Regions { get; set; } = null!;
         public virtual DbSet<Subscription> Subscriptions { get; set; } = null!;
         public virtual DbSet<SubscriptionStatus> SubscriptionStatuses { get; set; } = null!;
         public virtual DbSet<SubscriptionType> SubscriptionTypes { get; set; } = null!;
+        public virtual DbSet<TypeOfDelivery> TypeOfDeliveries { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -73,7 +75,7 @@ namespace NPLDataAccessLayer.Models
 
                 entity.Property(e => e.CreatedDate).HasColumnType("datetime");
 
-                entity.Property(e => e.Location).HasMaxLength(50);
+                entity.Property(e => e.Email).HasMaxLength(50);
 
                 entity.Property(e => e.ModifiedBy)
                     .HasMaxLength(10)
@@ -82,7 +84,6 @@ namespace NPLDataAccessLayer.Models
                 entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
 
                 entity.Property(e => e.PhoneNumber).HasMaxLength(50);
-                entity.Property(e => e.Email).HasMaxLength(50);
 
                 entity.HasOne(d => d.ClientType)
                     .WithMany(p => p.Clients)
@@ -107,7 +108,15 @@ namespace NPLDataAccessLayer.Models
             {
                 entity.ToTable("ClientType");
 
+                entity.Property(e => e.CreatedBy).HasMaxLength(50);
+
+                entity.Property(e => e.CreatedDate).HasColumnType("datetime");
+
                 entity.Property(e => e.Description).HasMaxLength(50);
+
+                entity.Property(e => e.ModifiedBy).HasMaxLength(50);
+
+                entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
             });
 
             modelBuilder.Entity<Country>(entity =>
@@ -150,9 +159,11 @@ namespace NPLDataAccessLayer.Models
 
             modelBuilder.Entity<Payment>(entity =>
             {
-                entity.Property(e => e.PaymentType)
-                    .HasMaxLength(10)
-                    .IsFixedLength();
+                entity.HasOne(d => d.PaymentType)
+                    .WithMany(p => p.Payments)
+                    .HasForeignKey(d => d.PaymentTypeId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_Payments_PaymentType");
             });
 
             modelBuilder.Entity<PaymentType>(entity =>
@@ -172,9 +183,24 @@ namespace NPLDataAccessLayer.Models
 
             modelBuilder.Entity<Promotion>(entity =>
             {
-                entity.Property(e => e.PromotionId).ValueGeneratedNever();
+                entity.Property(e => e.PromotionId);
 
                 entity.Property(e => e.PromotionCode).HasMaxLength(50);
+            });
+
+            modelBuilder.Entity<Publication>(entity =>
+            {
+                entity.Property(e => e.PublicationId);
+
+                entity.Property(e => e.CreatedBy).HasMaxLength(50);
+
+                entity.Property(e => e.CreatedDate).HasColumnType("datetime");
+
+                entity.Property(e => e.ModifiedBy).HasMaxLength(50);
+
+                entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
+
+                entity.Property(e => e.PublicationTitle).HasMaxLength(50);
             });
 
             modelBuilder.Entity<Region>(entity =>
@@ -216,12 +242,6 @@ namespace NPLDataAccessLayer.Models
 
                 entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
 
-                entity.HasOne(d => d.Client)
-                    .WithMany(p => p.Subscriptions)
-                    .HasForeignKey(d => d.ClientId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_Subscriptions_Clients");
-
                 entity.HasOne(d => d.Payment)
                     .WithMany(p => p.Subscriptions)
                     .HasForeignKey(d => d.PaymentId)
@@ -233,6 +253,30 @@ namespace NPLDataAccessLayer.Models
                     .HasForeignKey(d => d.PromotionId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_Subscriptions_Promotions");
+
+                entity.HasOne(d => d.Publication)
+                    .WithMany(p => p.Subscriptions)
+                    .HasForeignKey(d => d.PublicationId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_Subscriptions_Publications");
+
+                entity.HasOne(d => d.SubscriptionStatus)
+                    .WithMany(p => p.Subscriptions)
+                    .HasForeignKey(d => d.SubscriptionStatusId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_Subscriptions_SubscriptionStatuses");
+
+                entity.HasOne(d => d.SubscriptionType)
+                    .WithMany(p => p.Subscriptions)
+                    .HasForeignKey(d => d.SubscriptionTypeId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_Subscriptions_SubscriptionType");
+
+                entity.HasOne(d => d.TypeOfDelivery)
+                    .WithMany(p => p.Subscriptions)
+                    .HasForeignKey(d => d.TypeOfDeliveryId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_Subscriptions_Clients");
             });
 
             modelBuilder.Entity<SubscriptionStatus>(entity =>
@@ -265,6 +309,21 @@ namespace NPLDataAccessLayer.Models
                 entity.Property(e => e.SubscriptionFee).HasColumnType("decimal(19, 4)");
 
                 entity.Property(e => e.SubscriptionName).HasMaxLength(100);
+            });
+
+            modelBuilder.Entity<TypeOfDelivery>(entity =>
+            {
+                entity.Property(e => e.TypeOfDeliveryId);
+
+                entity.Property(e => e.CreatedBy).HasMaxLength(50);
+
+                entity.Property(e => e.CreatedDate).HasColumnType("datetime");
+
+                entity.Property(e => e.DateModified).HasColumnType("datetime");
+
+                entity.Property(e => e.ModifiedBy).HasMaxLength(50);
+
+                entity.Property(e => e.TypeOfDeliveryDescription).HasMaxLength(50);
             });
 
             OnModelCreatingPartial(modelBuilder);

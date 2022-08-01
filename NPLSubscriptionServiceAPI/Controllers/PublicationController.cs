@@ -1,5 +1,5 @@
-﻿using BusinessLogicLayer.Services.ClientServiceContainer;
-using BusinessLogicLayer.Services.SubscriptionServiceContainer;
+﻿using BusinessLogicLayer.Services.SubscriptionServiceContainer;
+using BusinessLogicLayer.Services.PublicationServiceContainer;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using NPLDataAccessLayer.DataTransferObjects;
@@ -8,23 +8,23 @@ namespace NPLSubscriptionServiceAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ClientController : ControllerBase
+    public class PublicationController : ControllerBase
     {
-        private readonly IClientService _service;
-        public ClientController(IClientService service)
+        private readonly IPublicationService _service;
+        public PublicationController(IPublicationService service)
         {
             _service = service;
         }
 
         /// <summary>
-        /// This is the API for creating Client
+        /// This is the API for creating Subscription Status
         /// </summary>
-        /// <param name="Client"></param>
+        /// <param name="Publication"></param>
         /// <returns></returns>
         [HttpPost("Create")]
-        public async Task<IActionResult> Create(ClientDTO client)
+        public async Task<IActionResult> Create(PublicationDTO publication)
         {
-            var outputHandler = await _service.Create(client);
+            var outputHandler = await _service.Create(publication);
             if (outputHandler.IsErrorOccured)
             {
                 return BadRequest(outputHandler);
@@ -33,15 +33,15 @@ namespace NPLSubscriptionServiceAPI.Controllers
         }
 
         /// <summary>
-        /// This is the API for updating Client
+        /// This is the API for updating Subscription Status
         /// </summary>
-        /// <param name="Client"></param>
+        /// <param name="Publication"></param>
         /// <returns></returns>
         /// 
         [HttpPut("Update")]
-        public async Task<IActionResult> Update(ClientDTO client)
+        public async Task<IActionResult> Update(PublicationDTO publication)
         {
-            var outputHandler = await _service.Update(client);
+            var outputHandler = await _service.Update(publication);
             if (outputHandler.IsErrorOccured)
             {
                 return BadRequest(outputHandler);
@@ -50,15 +50,15 @@ namespace NPLSubscriptionServiceAPI.Controllers
         }
 
         /// <summary>
-        /// This is the API that gets Client 
+        /// This is the API that gets Subscription Status 
         /// </summary>
         /// <returns></returns>
         /// 
 
-        [HttpGet("GetAllClients")]
-        public async Task<IActionResult> GetAllClients()
+        [HttpGet("GetAllPublications")]
+        public async Task<IActionResult> GetAllPublications()
         {
-            var output = await _service.GetAllClients();
+            var output = await _service.GetAllPublications();
             if (output != null)
             {
                 return Ok(output);
@@ -67,15 +67,15 @@ namespace NPLSubscriptionServiceAPI.Controllers
         }
 
         /// <summary>
-        /// This is the API that deletes a Client
+        /// This is the API that deletes a Subscription Status
         /// </summary>
-        /// <param name="clientId"></param>
+        /// <param name="PublicationId"></param>
         /// <returns></returns>
         /// 
         [HttpDelete("Delete")]
-        public async Task<IActionResult> Delete(int clientId)
+        public async Task<IActionResult> Delete(int PublicationId)
         {
-            var output = await _service.Delete(clientId);
+            var output = await _service.Delete(PublicationId);
             if (output.IsErrorOccured)
             {
                 return BadRequest(output);
@@ -83,19 +83,19 @@ namespace NPLSubscriptionServiceAPI.Controllers
             return Ok(output);
         }
 
-     
+
 
         /// <summary>
-        /// This is API that gets a Client
+        /// This is API that gets a Publication
         /// </summary>
-        /// <param name="ClientId"></param>
+        /// <param name="fileTypeId"></param>
         /// <returns></returns>
         /// 
 
-        [HttpGet("GetClient")]
-        public async Task<IActionResult> GetClient(int ClientId)
+        [HttpGet("GetPublication")]
+        public async Task<IActionResult> GetPublication(int PublicationId)
         {
-            var output = await _service.GetClient(ClientId);
+            var output = await _service.GetPublication(PublicationId);
             if (output != null)
             {
                 return Ok(output);

@@ -3,15 +3,16 @@ using System.Collections.Generic;
 
 namespace NPLDataAccessLayer.Models
 {
-    public partial class SubscriptionStatus
+    public partial class Publication
     {
-        public SubscriptionStatus()
+        public Publication()
         {
             Subscriptions = new HashSet<Subscription>();
         }
 
-        public int SubscriptionStatusId { get; set; }
-        public string Description { get; set; } = null!;
+        public int PublicationId { get; set; }
+        public string PublicationTitle { get; set; } = null!;
+        public bool IsActive { get; set; }
         public string CreatedBy { get; set; } = null!;
         public DateTime CreatedDate { get; set; }
         public string? ModifiedBy { get; set; }

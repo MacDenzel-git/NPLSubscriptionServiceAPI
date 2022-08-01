@@ -75,7 +75,8 @@ namespace BusinessLogicLayer.Services.DistrictServiceContainer
         public async Task<IEnumerable<DistrictDTO>> GetAllDistricts()
         {
             var output = await _service.GetAll( );
-            return new AutoMapper<District, DistrictDTO>().MapToList(output);
+            var mapped = new AutoMapper<District, DistrictDTO>().MapToList(output);
+            return mapped;
         }
 
         public async Task<OutputHandler> Update(DistrictDTO district)

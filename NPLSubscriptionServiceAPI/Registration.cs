@@ -4,10 +4,12 @@ using BusinessLogicLayer.Services.DistrictServiceContainer;
 using BusinessLogicLayer.Services.PaymentServiceContainer;
 using BusinessLogicLayer.Services.PaymentTypeContainer;
 using BusinessLogicLayer.Services.PromotionServiceContainer;
+using BusinessLogicLayer.Services.PublicationServiceContainer;
 using BusinessLogicLayer.Services.RegionContainer;
 using BusinessLogicLayer.Services.SubscriptionServiceContainer;
 using BusinessLogicLayer.Services.SubscriptionStatusServiceContainer;
 using BusinessLogicLayer.Services.SubscriptionTypeServiceContainer;
+using BusinessLogicLayer.Services.TypeOfDeliveryServiceContainer;
 using NPLDataAccessLayer.GenericRepositoryContainer;
 using NPLDataAccessLayer.Models;
 
@@ -29,6 +31,8 @@ namespace NPLSubscriptionServiceAPI
             serviceCollection.AddScoped<GenericRepository<SubscriptionStatus>>();
             serviceCollection.AddScoped<GenericRepository<SubscriptionType>>();
             serviceCollection.AddScoped<GenericRepository<Region>>();
+            serviceCollection.AddScoped<GenericRepository<Publication>>();
+            serviceCollection.AddScoped<GenericRepository<TypeOfDelivery>>();
             return serviceCollection.AddScoped<GenericRepository<SubscriptionStatus>>();
 
           
@@ -45,6 +49,8 @@ namespace NPLSubscriptionServiceAPI
             service.AddScoped<IPromotionService, PromotionService>();
             service.AddScoped<ISubscriptionService, SubscriptionService>();
             service.AddScoped<ISubscriptionStatusService, SubscriptionStatusService>();
+            service.AddScoped<IPublicationService, PublicationService>();
+            service.AddScoped<ITypeOfDeliveryService, TypeOfDeliveryService>();
              return service.AddScoped<IRegionService, RegionService>();
         
         }

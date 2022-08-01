@@ -13,7 +13,7 @@ namespace BusinessLogicLayer.Services.SubscriptionServiceContainer
         Task<OutputHandler> Create(SubscriptionDTO subscription);
         Task<OutputHandler> Update(SubscriptionDTO subscription);
         Task<OutputHandler> Delete(int subscriptionId);
-        Task<IEnumerable<SubscriptionDTO>> GetAllSubscriptions();
+        Task<List<SubscriptionDTO>> GetAllSubscriptions();
         Task<SubscriptionDTO> GetSubscription(int subscriptionId);
 
     }

@@ -9,7 +9,7 @@ namespace NPLDataAccessLayer.DataTransferObjects
     public class CountryDTO
     {
         public int CountryId { get; set; }
-        public string CountryName { get; set; } = null!;
+        public string CountryName { get; set; }
         public DateTime? DateCreated { get; set; }
         public string? CreatedBy { get; set; }
         public DateTime? ModifiedDate { get; set; }

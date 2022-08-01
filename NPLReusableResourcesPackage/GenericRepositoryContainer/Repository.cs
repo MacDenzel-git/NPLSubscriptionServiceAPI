@@ -3,10 +3,12 @@ using NPLReusableResourcesPackage.ErrorHandlingContainer;
 using NPLReusableResourcesPackage.General;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
+ using System.Data.SqlClient;
 
 namespace NPLReusableResourcesPackage.GenericRepositoryContainer
 {
@@ -128,6 +130,39 @@ namespace NPLReusableResourcesPackage.GenericRepositoryContainer
         {
             var result = await _context.Set<TEntity>().AnyAsync(expression);
             return result;
+        }
+
+        public async Task<TEntity> GetFilteredItemWithChildEntity(Expression<Func<TEntity, bool>> expression, string entity)
+        {
+
+            return await _context.Set<TEntity>().Include(entity).FirstOrDefaultAsync(expression);
+
+        }
+
+        public virtual async Task<IEnumerable<TModel>> FromSprocAsync<TModel>(string sproc, IDictionary<string, object> parameters = null) where TModel : new()
+        {
+             IEnumerable<TModel> data = Enumerable.Empty<TModel>();
+            //await _context.Database.OpenConnectionAsync();
+            //var command = _context.Database.GetDbConnection().CreateCommand();
+            var command = new SqlCommand();
+                command.CommandType = CommandType.StoredProcedure;
+                command.CommandText = sproc;
+
+                if (parameters != null)
+                {
+                    foreach (var parameter in parameters)
+                    {
+                        var dbParameter = command.CreateParameter();
+                        dbParameter.ParameterName = parameter.Key;
+                        dbParameter.Value = parameter.Value;
+                        command.Parameters.Add(dbParameter);
+                    }
+                }
+                using (var reader = await command.ExecuteReaderAsync())
+                {
+                    data = await reader.MapToListAsync<TModel>();
+                }
+                return data;
         }
     }
 }
