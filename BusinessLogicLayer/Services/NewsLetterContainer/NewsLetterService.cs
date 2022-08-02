@@ -144,8 +144,11 @@ namespace BusinessLogicLayer.Services.SubscriptionServiceContainer
 
         public async Task<OutputHandler> SendSoftCopyNewsLetter(int newsLetterId)
         {
+            var newsletterDetails = await _service.GetSingleItem(x=> x.NewsLetterId == newsLetterId);
+
             var newsLetter = await _service.GetSingleItem(x => x.NewsLetterId.Equals(newsLetterId));
-             var subs = (from sub in _context.Subscriptions
+             var subs = (from sub in _context.Subscriptions.Where(x => x.ExpiryDate.Date > DateTime.UtcNow.Date 
+                         && x.PublicationId == newsletterDetails.PublicationId && x.SubscriptionStatusId == 2 && x.TypeOfDeliveryId == 3 )
                         join clients in _context.Clients on sub.ClientId equals clients.ClientId
                         select new ClientDTO
                         {
@@ -158,19 +161,36 @@ namespace BusinessLogicLayer.Services.SubscriptionServiceContainer
                 ,
                 AttachementLocation = newsLetter.FileLocation
             };
-            var output = await _mailService.EmailNewsLetter(subs, emailDetails);
-            if (!output.IsErrorOccured)
-            {
-                newsLetter.SubmissionCount = subs.Count();
-                newsLetter.IsSubmittedSuccessfully = true;
-                newsLetter.SubmittedBy = "SysAdmin";
-                newsLetter.SubmittedDate = DateTime.Now.AddHours(2);
-                output = await _service.Update(newsLetter);
-                
 
+            if (subs.Count() == 0)
+            {
+                return new OutputHandler
+                {
+
+                    IsErrorOccured = true,
+                    Message = "This publication does not have subscribers at the moment, no email was sent out"
+                };
             }
-            return output;
- 
+            else
+            {
+                var output = await _mailService.EmailNewsLetter(subs, emailDetails);
+                if (!output.IsErrorOccured)
+                {
+                    newsLetter.SubmissionCount = subs.Count();
+                    newsLetter.IsSubmittedSuccessfully = true;
+                    newsLetter.SubmittedBy = "SysAdmin";
+                    newsLetter.SubmittedDate = DateTime.Now.AddHours(2);
+                    output = await _service.Update(newsLetter);
+                    return output;
+                }
+                else
+                {
+                    return output;
+                }
+            }
+            
+
+
         }
     }
 }

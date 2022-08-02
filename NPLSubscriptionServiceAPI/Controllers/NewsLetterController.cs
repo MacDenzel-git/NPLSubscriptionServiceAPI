@@ -109,11 +109,11 @@ namespace NPLSubscriptionServiceAPI.Controllers
         public async Task<IActionResult> SendNewsLetter(int NewsLetterId)
         {
             var output = await _service.SendSoftCopyNewsLetter(NewsLetterId);
-            if (output != null)
+            if (!output.IsErrorOccured)
             {
                 return Ok(output);
             }
-            return NoContent();
+            return BadRequest(output);
 
         }
 
