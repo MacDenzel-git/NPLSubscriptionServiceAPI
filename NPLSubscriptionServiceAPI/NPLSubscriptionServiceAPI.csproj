@@ -20,4 +20,8 @@
     <ProjectReference Include="..\NPLDataAccessLayer\NPLDataAccessLayer.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="NewsLetters\" />
+  </ItemGroup>
+
 </Project>

@@ -14,6 +14,7 @@ namespace BusinessLogicLayer.Services.ClientServiceContainer
         Task<OutputHandler> Update(ClientDTO client);
         Task<OutputHandler> Delete(int clientId);
         Task<IEnumerable<ClientDTO>> GetAllClients();
+        Task<IEnumerable<ClientDTO>> ClientsByRegion(int regionId);
         Task<ClientDTO> GetClient(int clientId);
     }
 }

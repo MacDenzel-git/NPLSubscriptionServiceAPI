@@ -21,11 +21,13 @@ namespace NPLDataAccessLayer.Models
         public virtual DbSet<ClientType> ClientTypes { get; set; } = null!;
         public virtual DbSet<Country> Countries { get; set; } = null!;
         public virtual DbSet<District> Districts { get; set; } = null!;
+        public virtual DbSet<NewsLetter> NewsLetters { get; set; } = null!;
         public virtual DbSet<Payment> Payments { get; set; } = null!;
         public virtual DbSet<PaymentType> PaymentTypes { get; set; } = null!;
         public virtual DbSet<Promotion> Promotions { get; set; } = null!;
         public virtual DbSet<Publication> Publications { get; set; } = null!;
         public virtual DbSet<Region> Regions { get; set; } = null!;
+        public virtual DbSet<SelfSubscriptionApplication> SelfSubscriptionApplications { get; set; } = null!;
         public virtual DbSet<Subscription> Subscriptions { get; set; } = null!;
         public virtual DbSet<SubscriptionStatus> SubscriptionStatuses { get; set; } = null!;
         public virtual DbSet<SubscriptionType> SubscriptionTypes { get; set; } = null!;
@@ -157,6 +159,33 @@ namespace NPLDataAccessLayer.Models
                     .HasConstraintName("FK_Districts_Countries");
             });
 
+            modelBuilder.Entity<NewsLetter>(entity =>
+            {
+                entity.ToTable("NewsLetter");
+
+                entity.Property(e => e.CreatedBy).HasMaxLength(50);
+
+                entity.Property(e => e.CreatedDate).HasColumnType("datetime");
+
+                entity.Property(e => e.FileLocation)
+                    .HasMaxLength(10)
+                    .IsFixedLength();
+
+                entity.Property(e => e.ModifiedBy).HasMaxLength(50);
+
+                entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
+
+                entity.Property(e => e.SubmittedBy).HasMaxLength(50);
+
+                entity.Property(e => e.SubmittedDate).HasColumnType("datetime");
+
+                entity.HasOne(d => d.Publication)
+                    .WithMany(p => p.NewsLetters)
+                    .HasForeignKey(d => d.PublicationId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_NewsLetter_Publications");
+            });
+
             modelBuilder.Entity<Payment>(entity =>
             {
                 entity.HasOne(d => d.PaymentType)
@@ -183,15 +212,19 @@ namespace NPLDataAccessLayer.Models
 
             modelBuilder.Entity<Promotion>(entity =>
             {
-                entity.Property(e => e.PromotionId);
+                entity.Property(e => e.CreatedBy).HasMaxLength(50);
+
+                entity.Property(e => e.CreatedDate).HasColumnType("datetime");
+
+                entity.Property(e => e.ModifiedBy).HasMaxLength(50);
+
+                entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
 
                 entity.Property(e => e.PromotionCode).HasMaxLength(50);
             });
 
             modelBuilder.Entity<Publication>(entity =>
             {
-                entity.Property(e => e.PublicationId);
-
                 entity.Property(e => e.CreatedBy).HasMaxLength(50);
 
                 entity.Property(e => e.CreatedDate).HasColumnType("datetime");
@@ -222,6 +255,60 @@ namespace NPLDataAccessLayer.Models
                     .HasForeignKey(d => d.CountryId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_Regions_Countries");
+            });
+
+            modelBuilder.Entity<SelfSubscriptionApplication>(entity =>
+            {
+                entity.HasKey(e => e.SubscriptionApplicationId);
+
+                entity.ToTable("SelfSubscriptionApplication");
+
+                entity.Property(e => e.CreatedBy).HasMaxLength(50);
+
+                entity.Property(e => e.CreatedDate).HasColumnType("datetime");
+
+                entity.Property(e => e.Email).HasMaxLength(50);
+
+                entity.Property(e => e.FullName).HasMaxLength(50);
+
+                entity.Property(e => e.Location).HasMaxLength(50);
+
+                entity.Property(e => e.ModifiedBy).HasMaxLength(50);
+
+                entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
+
+                entity.Property(e => e.PhoneNumber).HasMaxLength(50);
+
+                entity.Property(e => e.SubscriptionStartDate).HasColumnType("datetime");
+
+                entity.HasOne(d => d.Country)
+                    .WithMany(p => p.SelfSubscriptionApplications)
+                    .HasForeignKey(d => d.CountryId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_SelfSubscriptionApplication_Countries");
+
+                entity.HasOne(d => d.PaymentType)
+                    .WithMany(p => p.SelfSubscriptionApplications)
+                    .HasForeignKey(d => d.PaymentTypeId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_SelfSubscriptionApplication_PaymentType");
+
+                entity.HasOne(d => d.Publication)
+                    .WithMany(p => p.SelfSubscriptionApplications)
+                    .HasForeignKey(d => d.PublicationId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_SelfSubscriptionApplication_Publications");
+
+                entity.HasOne(d => d.Region)
+                    .WithMany(p => p.SelfSubscriptionApplications)
+                    .HasForeignKey(d => d.RegionId)
+                    .HasConstraintName("FK_SelfSubscriptionApplication_Regions");
+
+                entity.HasOne(d => d.TypeOfDelivery)
+                    .WithMany(p => p.SelfSubscriptionApplications)
+                    .HasForeignKey(d => d.TypeOfDeliveryId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_SelfSubscriptionApplication_TypeOfDeliveries");
             });
 
             modelBuilder.Entity<Subscription>(entity =>
@@ -306,20 +393,20 @@ namespace NPLDataAccessLayer.Models
 
                 entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
 
-                entity.Property(e => e.SubscriptionFee).HasColumnType("decimal(19, 4)");
+                entity.Property(e => e.SubscriptionFee).HasColumnType("decimal(19, 2)");
 
                 entity.Property(e => e.SubscriptionName).HasMaxLength(100);
             });
 
             modelBuilder.Entity<TypeOfDelivery>(entity =>
             {
-                entity.Property(e => e.TypeOfDeliveryId);
-
                 entity.Property(e => e.CreatedBy).HasMaxLength(50);
 
                 entity.Property(e => e.CreatedDate).HasColumnType("datetime");
 
                 entity.Property(e => e.DateModified).HasColumnType("datetime");
+
+                entity.Property(e => e.DeliveryFee).HasColumnType("decimal(19, 2)");
 
                 entity.Property(e => e.ModifiedBy).HasMaxLength(50);
 

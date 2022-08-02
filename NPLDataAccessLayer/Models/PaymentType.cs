@@ -8,6 +8,7 @@ namespace NPLDataAccessLayer.Models
         public PaymentType()
         {
             Payments = new HashSet<Payment>();
+            SelfSubscriptionApplications = new HashSet<SelfSubscriptionApplication>();
         }
 
         public int PaymentTypeId { get; set; }
@@ -19,5 +20,6 @@ namespace NPLDataAccessLayer.Models
         public DateTime? ModifiedDate { get; set; }
 
         public virtual ICollection<Payment> Payments { get; set; }
+        public virtual ICollection<SelfSubscriptionApplication> SelfSubscriptionApplications { get; set; }
     }
 }

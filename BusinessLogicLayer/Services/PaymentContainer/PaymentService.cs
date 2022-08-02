@@ -28,7 +28,7 @@ namespace BusinessLogicLayer.Services.PaymentServiceContainer
             try
             {
                 //The same transaction cannot be entered twice
-                bool isExist = await _service.AnyAsync(x => x.TransactionId == payment.TransactionId);
+                bool isExist = await _service.AnyAsync(x => x.TransactionId == payment.TransactionId && x.PaymentTypeId == payment.PaymentTypeId);
                 if (isExist)
                 {
                     return new OutputHandler
@@ -38,7 +38,27 @@ namespace BusinessLogicLayer.Services.PaymentServiceContainer
 
                     };
                 }
+                
+                //Check if user has payments in the system 
+                var prevPayment = await _service.GetSingleItem(x => x.ClientId == payment.ClientId);
+                if (prevPayment != null)
+                {
+                    if (prevPayment.Amount > 0)
+                    {
+                        //add the remain amount to the current payment
+                        payment.Amount = payment.Amount + prevPayment.Amount;
 
+                        //Comment for Trail
+                        payment.Comment = $"Balance from payment PreviousPayment TransID:{payment.TransactionId}, Amount:{prevPayment.Amount} was added to Payment TransID:{payment.TransactionId}:Amount {payment.Amount} on{DateTime.UtcNow.Date} by {payment.CreatedBy}";
+                        //reset it to zero to avoid multiple results on the above request
+                        prevPayment.Amount = 0;
+                      
+                       
+                    }
+                    //flag the previous payment as used
+                    prevPayment.IsUsed = true;
+                }
+                
                 var mapped = new AutoMapper<PaymentDTO, Payment>().MapToObject(payment);
                 mapped.IsUsed = false;
                 var result = await _service.Create(mapped);
@@ -87,12 +107,57 @@ namespace BusinessLogicLayer.Services.PaymentServiceContainer
                              PaymentTypeDescription = pt.Description,
                              AccountNumber = pt.AccountNumber,
                              TransactionId = payments.TransactionId,
-                             PaymentId = payments.PaymentId
+                             PaymentId = payments.PaymentId,
+                             Amount = payments.Amount,
+                             IsUsed = payments.IsUsed,
+                             PaymentIndentifer = $"{c.ClientName}-{payments.Amount}-{payments.TransactionId}"
                          }).ToListAsync();
 
             return output;
         }
 
+        public async Task<IEnumerable<PaymentDTO>> GetAllPaymentsForSubscription()
+        {
+            IEnumerable<PaymentDTO> output = await (from payments in _context.Payments.Where(x => x.IsUsed == false && x.Amount > 0)
+                                                    join c in _context.Clients on payments.ClientId equals c.ClientId
+                                                    join pt in _context.PaymentTypes on payments.PaymentTypeId equals pt.PaymentTypeId
+                                                    select new PaymentDTO
+                                                    {
+                                                        ClientId = c.ClientId,
+                                                        ClientName = c.ClientName,
+                                                        PaymentTypeDescription = pt.Description,
+                                                        AccountNumber = pt.AccountNumber,
+                                                        TransactionId = payments.TransactionId,
+                                                        PaymentId = payments.PaymentId,
+                                                        Amount = payments.Amount,
+                                                        IsUsed = payments.IsUsed,
+                                                        PaymentIndentifer = $"{c.ClientName}-{payments.Amount}-{payments.TransactionId}"
+                                                    }).ToListAsync();
+
+            return output;
+        }
+
+        public async Task<IEnumerable<PaymentDTO>> PaymentsByMerchant(int paymentTypeId)
+        {
+            IEnumerable<PaymentDTO> output = await (from payments in _context.Payments.Where(x=>x.PaymentTypeId == paymentTypeId)
+                                                    join c in _context.Clients on payments.ClientId equals c.ClientId
+                                                    join pt in _context.PaymentTypes on payments.PaymentTypeId equals pt.PaymentTypeId
+                                                    select new PaymentDTO
+                                                    {
+                                                        ClientId = c.ClientId,
+                                                        ClientName = c.ClientName,
+                                                        PaymentTypeDescription = pt.Description,
+                                                        AccountNumber = pt.AccountNumber,
+                                                        TransactionId = payments.TransactionId,
+                                                        PaymentId = payments.PaymentId,
+                                                        PaymentTypeId = payments.PaymentTypeId,
+                                                        Amount = payments.Amount,
+                                                        IsUsed = payments.IsUsed
+
+                                                    }).ToListAsync();
+
+            return output;
+        }
         #region Commented update Code in case it's needed
         //public async Task<OutputHandler> Update(PaymentDTO payment)
         //{

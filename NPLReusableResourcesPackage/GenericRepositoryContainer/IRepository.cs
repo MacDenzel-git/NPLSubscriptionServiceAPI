@@ -17,5 +17,7 @@ namespace NPLReusableResourcesPackage.GenericRepositoryContainer
         public Task<OutputHandler> Delete(Expression<Func<TEntity, bool>> expression);
         public Task<TEntity> GetSingleItem(Expression<Func<TEntity, bool>> expression);
         public Task<OutputHandler> Update(TEntity entity);
+        Task<IEnumerable<TEntity>> GetListAsync(Expression<Func<TEntity, bool>> expression);
+        Task<IEnumerable<TModel>> FromSprocAsync<TModel>(string sproc, IDictionary<string, object> parameters = null) where TModel : new();
     }
 }

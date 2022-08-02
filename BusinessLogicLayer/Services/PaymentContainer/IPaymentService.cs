@@ -14,6 +14,8 @@ namespace BusinessLogicLayer.Services.PaymentServiceContainer
         //Task<OutputHandler> Update(PaymentDTO payment);
         Task<OutputHandler> Delete(int paymentId);
         Task<IEnumerable<PaymentDTO>> GetAllPayments();
+        Task<IEnumerable<PaymentDTO>> GetAllPaymentsForSubscription();
+        Task<IEnumerable<PaymentDTO>> PaymentsByMerchant(int paymentTypeId);
         Task<PaymentDTO> GetPayment(int paymentId);
         Task<OutputHandler> ForceToExpire(int paymentId);
     }

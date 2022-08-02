@@ -14,6 +14,8 @@ namespace BusinessLogicLayer.Services.PaymentTypeContainer
         Task<OutputHandler> Update(PaymentTypeDTO paymentType);
         Task<OutputHandler> Delete(int paymentId);
         Task<IEnumerable<PaymentTypeDTO>> GetAllPaymentTypes();
+        Task<IEnumerable<PaymentTypeDTO>> GetPaymentsByMerchant(int paymentTypeId);
+
         Task<PaymentTypeDTO> GetPaymentType(int id);
     }
 }

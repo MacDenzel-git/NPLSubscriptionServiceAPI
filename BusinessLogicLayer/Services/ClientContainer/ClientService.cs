@@ -1,4 +1,5 @@
-﻿using NPLDataAccessLayer.DataTransferObjects;
+﻿using Microsoft.EntityFrameworkCore;
+using NPLDataAccessLayer.DataTransferObjects;
 using NPLDataAccessLayer.GenericRepositoryContainer;
 using NPLDataAccessLayer.Models;
 using NPLReusableResourcesPackage.AutoMapperContainer;
@@ -16,8 +17,11 @@ namespace BusinessLogicLayer.Services.ClientServiceContainer
     {
 
         private readonly GenericRepository<Client> _service;
-        public ClientService(GenericRepository<Client> service)
+        private readonly NPLSubsctiptionServiceDBContext _context;
+        public ClientService(GenericRepository<Client> service,
+            NPLSubsctiptionServiceDBContext context)
         {
+            _context = context;
             _service = service;
         }
         public async Task<OutputHandler> Create(ClientDTO client)
@@ -73,10 +77,44 @@ namespace BusinessLogicLayer.Services.ClientServiceContainer
 
         public async Task<IEnumerable<ClientDTO>> GetAllClients()
         {
-            var output = await _service.GetAll( );
-            return new AutoMapper<Client, ClientDTO>().MapToList(output);
+            var output = await (from c in _context.Clients 
+                                join ct in _context.ClientTypes on c.ClientTypeId equals ct.ClientTypeId
+                                join r in _context.Regions on c.RegionId equals r.RegionId
+                                join d in _context.Districts on c.DistrictId equals d.DistrictId
+                                select new ClientDTO
+                                {
+                                     
+                                    ClientName = c.ClientName,
+                                    ClientTypeName = ct.Description,
+                                    Location = c.Location,
+                                    PhoneNumber = c.PhoneNumber,
+                                    RegionName = r.RegionName,
+                                    DistrictName = d.DistrictName,
+                                    ClientId = c.ClientId
+                                }).ToListAsync();
+
+            return output;
         }
 
+        public async Task<IEnumerable<ClientDTO>> ClientsByRegion(int regionId)
+        {
+            var output = await (from c in _context.Clients.Where(x => x.RegionId == regionId)
+                         join ct in _context.ClientTypes on c.ClientTypeId equals ct.ClientTypeId
+                         join r in _context.Regions on c.RegionId equals r.RegionId
+                         join d in _context.Districts on c.DistrictId equals d.DistrictId
+                         select new ClientDTO
+                         {
+                             RegionId = regionId,
+                             ClientName = c.ClientName,
+                             ClientTypeName = ct.Description,
+                             Location = c.Location,
+                             PhoneNumber = c.PhoneNumber,
+                             RegionName = r.RegionName,
+                             DistrictName = d.DistrictName,
+                         }).ToListAsync();
+
+             return output;
+        }
         public async Task<OutputHandler> Update(ClientDTO client)
         {
             try

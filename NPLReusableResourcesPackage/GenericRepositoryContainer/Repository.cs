@@ -138,13 +138,19 @@ namespace NPLReusableResourcesPackage.GenericRepositoryContainer
             return await _context.Set<TEntity>().Include(entity).FirstOrDefaultAsync(expression);
 
         }
-
+        public async Task<IEnumerable<TEntity>> GetListAsync(Expression<Func<TEntity, bool>> expression)
+        {
+            return await _context.Set<TEntity>().Where(expression).ToListAsync();
+        }
         public virtual async Task<IEnumerable<TModel>> FromSprocAsync<TModel>(string sproc, IDictionary<string, object> parameters = null) where TModel : new()
         {
              IEnumerable<TModel> data = Enumerable.Empty<TModel>();
             //await _context.Database.OpenConnectionAsync();
             //var command = _context.Database.GetDbConnection().CreateCommand();
-            var command = new SqlCommand();
+            using (SqlConnection connection = new SqlConnection(@"Data Source=.;Initial Catalog=NPLSubsctiptionServiceDB;integrated security=true;"))
+            {
+                connection.Open();
+                var command = new SqlCommand();
                 command.CommandType = CommandType.StoredProcedure;
                 command.CommandText = sproc;
 
@@ -162,6 +168,7 @@ namespace NPLReusableResourcesPackage.GenericRepositoryContainer
                 {
                     data = await reader.MapToListAsync<TModel>();
                 }
+            }
                 return data;
         }
     }

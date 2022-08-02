@@ -23,6 +23,9 @@ namespace NPLDataAccessLayer.DataTransferObjects
 
         public string? OldEmail { get; set; } //to hold previous email to be used for validation
         public string? ClientTypeName { get; set; }
-        public string Email { get; set; }
+        public string? Email { get; set; }
+        public string? RegionName { get; set; }
+        public string? DistrictName { get; set; }
+
     }
 }

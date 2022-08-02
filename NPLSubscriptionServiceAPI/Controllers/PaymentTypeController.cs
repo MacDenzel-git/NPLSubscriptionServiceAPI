@@ -66,6 +66,16 @@ namespace NPLSubscriptionServiceAPI.Controllers
             return NoContent();
         }
 
+        [HttpGet("GetPaymentsByMerchant")]
+        public async Task<IActionResult> GetPaymentsByMerchant(int paymenttypeId)
+        {
+            var output = await _service.GetPaymentsByMerchant(paymenttypeId);
+            if (output != null)
+            {
+                return Ok(output);
+            }
+            return NoContent();
+        }
         /// <summary>
         /// This is the API that deletes a Payment Type
         /// </summary>

@@ -64,6 +64,19 @@ namespace NPLSubscriptionServiceAPI.Controllers
                 return Ok(output);
             }
             return NoContent();
+
+
+        }
+        
+        [HttpGet("ClientsByRegion")]
+        public async Task<IActionResult> ClientsByRegion(int regionId)
+        {
+            var output = await _service.ClientsByRegion(regionId);
+            if (output != null)
+            {
+                return Ok(output);
+            }
+            return NoContent();
         }
 
         /// <summary>

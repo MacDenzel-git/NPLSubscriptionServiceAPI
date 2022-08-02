@@ -64,6 +64,29 @@ namespace NPLSubscriptionServiceAPI.Controllers
                 return Ok(output);
             }
             return NoContent();
+        } 
+        
+        [HttpGet("GetAllPaymentsForSubscription")]
+        public async Task<IActionResult> GetAllPaymentsForSubscription()
+        {
+            var output = await _service.GetAllPaymentsForSubscription();
+            if (output != null)
+            {
+                return Ok(output);
+            }
+            return NoContent();
+        }
+
+
+        [HttpGet("PaymentsByMerchant")]
+        public async Task<IActionResult> PaymentsByMerchant(int paymentTypeId)
+        {
+            var output = await _service.PaymentsByMerchant(paymentTypeId);
+            if (output != null)
+            {
+                return Ok(output);
+            }
+            return NoContent();
         }
 
         /// <summary>

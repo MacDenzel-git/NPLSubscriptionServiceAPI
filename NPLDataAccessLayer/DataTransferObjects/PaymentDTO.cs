@@ -20,5 +20,9 @@ namespace NPLDataAccessLayer.DataTransferObjects
         public string? ModifiedBy { get; set; }
         public DateTime? ModifiedDate { get; set; }
         public int AccountNumber { get; set; }
+        public decimal? Amount { get; set; }
+        public string? Comment { get; set; }
+        public string? PaymentIndentifer { get; set; }
+
     }
 }

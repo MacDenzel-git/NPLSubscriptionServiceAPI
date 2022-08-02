@@ -17,7 +17,7 @@ namespace NPLDataAccessLayer.DataTransferObjects
         public DateTime DateOfSubscription { get; set; }
         public DateTime ExpiryDate { get; set; }
         public long PaymentId { get; set; }
-        public string CreatedBy { get; set; } 
+        public string? CreatedBy { get; set; } 
         public DateTime CreatedDate { get; set; }
         public string? ModifiedBy { get; set; }
         public DateTime? ModifiedDate { get; set; }
@@ -31,5 +31,7 @@ namespace NPLDataAccessLayer.DataTransferObjects
         public string? SubscriptionStatusDescription { get; set; }
         public string? ClientName { get; set; }
         public string? PromotionCode { get; set; }
+        public int? TotalSubscriptions { get; set; }
+        public IEnumerable<PublicationStats>? PublicationStats { get; set; }
     }
 }

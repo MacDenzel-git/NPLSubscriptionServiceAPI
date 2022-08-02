@@ -15,5 +15,6 @@ namespace BusinessLogicLayer.Services.RegionContainer
         Task<OutputHandler> Delete(int regionId);
         Task<IEnumerable<RegionDTO>> GetAllRegions();
         Task<RegionDTO> GetRegion(int regionId);
+        
     }
 }

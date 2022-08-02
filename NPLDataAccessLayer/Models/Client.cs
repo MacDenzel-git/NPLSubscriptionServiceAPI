@@ -12,6 +12,7 @@ namespace NPLDataAccessLayer.Models
         public string Email { get; set; } = null!;
         public string? PhoneNumber { get; set; }
         public int RegionId { get; set; }
+        public int TotalSubscription { get; set; }
         public long DistrictId { get; set; }
         public string CreatedBy { get; set; } = null!;
         public DateTime CreatedDate { get; set; }

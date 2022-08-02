@@ -8,6 +8,7 @@ namespace NPLDataAccessLayer.Models
         public Region()
         {
             Clients = new HashSet<Client>();
+            SelfSubscriptionApplications = new HashSet<SelfSubscriptionApplication>();
         }
 
         public int RegionId { get; set; }
@@ -20,5 +21,6 @@ namespace NPLDataAccessLayer.Models
 
         public virtual Country Country { get; set; } = null!;
         public virtual ICollection<Client> Clients { get; set; }
+        public virtual ICollection<SelfSubscriptionApplication> SelfSubscriptionApplications { get; set; }
     }
 }

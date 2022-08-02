@@ -1,5 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using BusinessLogicLayer.Services.ReportsContainer;
+using Microsoft.EntityFrameworkCore;
 using NPLDataAccessLayer.DataTransferObjects;
+using NPLDataAccessLayer.GeneralHelpers;
 using NPLDataAccessLayer.GenericRepositoryContainer;
 using NPLDataAccessLayer.Models;
 using NPLReusableResourcesPackage.AutoMapperContainer;
@@ -10,6 +12,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Transactions;
 
 namespace BusinessLogicLayer.Services.SubscriptionServiceContainer
 {
@@ -20,17 +23,25 @@ namespace BusinessLogicLayer.Services.SubscriptionServiceContainer
         private readonly GenericRepository<SubscriptionType> _subscriptionTypeService;
         private readonly GenericRepository<Promotion> _promotionService;
         private readonly GenericRepository<Payment> _paymentService;
+        private readonly GenericRepository<Client> _clientService;
         private readonly NPLSubsctiptionServiceDBContext _context;
+        private readonly IMailService _mailService;
+        private readonly IReportService _reportService;
+
         public SubscriptionService(GenericRepository<Subscription> subscriptionService,
             GenericRepository<SubscriptionType> subscriptionTypeService,
             GenericRepository<Payment> paymentService,
-        GenericRepository<Promotion> promotionService,NPLSubsctiptionServiceDBContext context)
+        GenericRepository<Promotion> promotionService,NPLSubsctiptionServiceDBContext context, IReportService reportService,
+        IMailService mailService, GenericRepository<Client>  clientService)
         {
             _promotionService = promotionService;
             _subscriptionTypeService = subscriptionTypeService;
             _context = context;
             _subscriptionService = subscriptionService;
             _paymentService = paymentService;
+            _reportService = reportService;
+            _clientService = clientService;
+            _mailService = mailService;
         }
         public async Task<OutputHandler> Create(SubscriptionDTO subscription)
         {
@@ -42,19 +53,99 @@ namespace BusinessLogicLayer.Services.SubscriptionServiceContainer
                 {
                     return output;
                 }
-                subscription = (SubscriptionDTO)output.Result;
+                using (TransactionScope transactionScope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled)) //bundle this together so that if something goes wrong changes should be rolled back
+                {
 
-                var mapped = new AutoMapper<SubscriptionDTO, Subscription>().MapToObject(subscription);
-                var result = await _subscriptionService.Create(mapped);
+                    try
+                    {
+                        //make payment
+                        var payment = await _paymentService.GetSingleItem(x => x.PaymentId == subscription.PaymentId && x.ClientId == subscription.ClientId);
+                        if (payment != null)
+                        {
+                            if (payment.Amount < subscription.ChargeInMwk)
+                            {
+                                return new OutputHandler
+                                {
+                                    IsErrorOccured = true,
+                                    Message = $"The Payment associated to this Transaction ID:{payment.Amount} is less that the required {subscription.ChargeInMwk}, please advice client to top up"
+                                };
+                            }
+                            else
+                            {
+                                //deduct charge from amount
+                                payment.Amount = payment.Amount - subscription.ChargeInMwk;
+                            }
+                        }
+                        else
+                        {
+                            return new OutputHandler
+                            {
+                                IsErrorOccured = true,
+                                Message = $"The Chosen Transaction Id Does not match any Payments for this client, please choose the correct payment"
+                            };
+                        }
 
-                var payment = await _paymentService.GetSingleItem(x =>x.PaymentId == subscription.PaymentId);
-                payment.IsUsed = true;
+                        if (payment.Amount > 0)
+                        {
 
-                await _paymentService.Update(payment);
-                return result;
+                        }
+                        else
+                        {
+                            payment.IsUsed = true;
+                        }
+                        
+                      
+                         var result =   await _paymentService.Update(payment);
+                        if (result.IsErrorOccured)
+                        {
+                            return result;
+                        }
+
+                        subscription = (SubscriptionDTO)output.Result;
+
+                        var mapped = new AutoMapper<SubscriptionDTO, Subscription>().MapToObject(subscription);
+                        result = await _subscriptionService.Create(mapped);
+                        if (!result.IsErrorOccured)
+                        {
+                           var client = await _clientService.GetSingleItem(x => x.ClientId == subscription.ClientId);
+                            ReceiptDTO receipt = await _reportService.GetReceipt((int)payment.PaymentId);
+
+                            //when everything has completed Successful Email User Receipt 
+                            var emailProperties = new EmailProperties
+                            {
+                                RecepientEmail = client.Email,
+                                Subject = "SUBSCRIPTION PAYMENT RECEIPT",
+                                EmailBody =  $"Dear Customer<br /><br /> <strong> ClientName: {receipt.ClientName} </strong> <br />  <strong> TransactionID:  </strong> {receipt.TransactionId} " +
+                                $"<br /> <strong>  PublicationTitle:  </strong> {receipt.PublicationTitle}<br />  <strong> Merchant:  </strong> {receipt.PaymentAccountDetails}<br /> <strong>  Amount: </strong> {receipt.PaymentAccountDetails}" +
+                                $"<br />  <strong> Amount: <strong> {receipt.Amount}<br /><br /><br />" +
+                                $"<strong>NOTE<strong>:If Amount on this receipt is higher than the amount you paid it means you has unused balances from you previous amount<br />" +
+                                $"Kind regards,<br /> NPL Subscription Service"
+                            };
+
+                            //Send Mail
+                            var mail = await _mailService.EmailMember("SubscriptionPaymentSuccess", emailProperties);
+
+                            //update user number of subscriptions incrementByOne
+                            client.TotalSubscription = client.TotalSubscription + 1;
+                            await _clientService.Update(client);
+                           
+                        }
+                        transactionScope.Complete();
+
+                        return result;
+                    }
+                    catch (Exception ex)
+                    {
+                        //transactionScope.Dispose();
+                        return StandardMessages.getExceptionMessage(ex);
+                    }
+                    
+                }
+                
             }
             catch (Exception ex)
             {
+                 
                 return StandardMessages.getExceptionMessage(ex);
             }
 
@@ -197,9 +288,19 @@ namespace BusinessLogicLayer.Services.SubscriptionServiceContainer
 
 
             int durationInDays = (subscription.ExpiryDate - subscription.DateOfSubscription ).Days;
-            
+            int numberOfOccurence = 0;
+            if (subscription.SubscriptionTypeId == 1 || subscription.SubscriptionTypeId == 2)
+            {
+                //comes out every seven days 
+                numberOfOccurence = durationInDays / 7;
+
+            }
+            else if(subscription.SubscriptionTypeId == 3)
+            {
+                numberOfOccurence = durationInDays / 5; //comes out every 5 days 
+            }
             //calculate price according to number of copies
-            decimal totalFee = Convert.ToDecimal(subscriptionType.SubscriptionFee * subscription.NumberOfCopies) * durationInDays;
+            decimal totalFee = Convert.ToDecimal(subscriptionType.SubscriptionFee * subscription.NumberOfCopies) * numberOfOccurence;
            
             //Calculate Subscription FEE
             if (subscription.PromotionId == 1)
@@ -234,5 +335,7 @@ namespace BusinessLogicLayer.Services.SubscriptionServiceContainer
                 Result = subscription
             };
         }
+
+        
     }
 }

@@ -77,7 +77,11 @@ namespace BusinessLogicLayer.Services.SubscriptionServiceContainer
             var output = await _service.GetAll( );
             return new AutoMapper<PaymentType, PaymentTypeDTO>().MapToList(output);
         }
-
+        public async Task<IEnumerable<PaymentTypeDTO>> GetPaymentsByMerchant(int paymentTypeId)
+        {
+            var output = await _service.GetListAsync(x=>x.PaymentTypeId==paymentTypeId);
+            return new AutoMapper<PaymentType, PaymentTypeDTO>().MapToList(output);
+        }
         public async Task<OutputHandler> Update(PaymentTypeDTO paymentType)
         {
             try

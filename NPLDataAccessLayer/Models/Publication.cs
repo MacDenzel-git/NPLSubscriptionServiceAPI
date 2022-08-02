@@ -7,6 +7,8 @@ namespace NPLDataAccessLayer.Models
     {
         public Publication()
         {
+            NewsLetters = new HashSet<NewsLetter>();
+            SelfSubscriptionApplications = new HashSet<SelfSubscriptionApplication>();
             Subscriptions = new HashSet<Subscription>();
         }
 
@@ -18,6 +20,8 @@ namespace NPLDataAccessLayer.Models
         public string? ModifiedBy { get; set; }
         public DateTime? ModifiedDate { get; set; }
 
+        public virtual ICollection<NewsLetter> NewsLetters { get; set; }
+        public virtual ICollection<SelfSubscriptionApplication> SelfSubscriptionApplications { get; set; }
         public virtual ICollection<Subscription> Subscriptions { get; set; }
     }
 }

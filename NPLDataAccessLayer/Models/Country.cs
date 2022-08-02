@@ -10,6 +10,7 @@ namespace NPLDataAccessLayer.Models
             Branches = new HashSet<Branch>();
             Districts = new HashSet<District>();
             Regions = new HashSet<Region>();
+            SelfSubscriptionApplications = new HashSet<SelfSubscriptionApplication>();
         }
 
         public int CountryId { get; set; }
@@ -22,5 +23,6 @@ namespace NPLDataAccessLayer.Models
         public virtual ICollection<Branch> Branches { get; set; }
         public virtual ICollection<District> Districts { get; set; }
         public virtual ICollection<Region> Regions { get; set; }
+        public virtual ICollection<SelfSubscriptionApplication> SelfSubscriptionApplications { get; set; }
     }
 }
